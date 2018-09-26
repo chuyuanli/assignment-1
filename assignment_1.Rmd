@@ -1,0 +1,232 @@
+---
+title: "Assignment1"
+author: "Chuyuan LI"
+date: "9/19/2018"
+output: html_document
+---
+
+```{r}
+source("functions.R")
+```
+## Exercise 1
+This is my first time using Rmd, but I've already got some experience in using markdown and Git during my internship.
+My favorite cheetsheet of [markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links)
+
+
+## Exercise 2
+```{r}
+possible_outcomes <- c(0, 1, 2, 3, 4, 5)
+outcome_probabilities <- c(0.1, 0.5, 0.2, 0.1, 0.05, 0.05)
+n_data_points <- 400
+set.seed(1)
+fake_data_points <- sample(possible_outcomes,
+                           n_data_points,
+                           replace=T,
+                           prob=outcome_probabilities)
+set.seed(NULL)
+fake_data_set <- tibble::data_frame(`Fake measurement`=fake_data_points)
+```
+
+```{r}
+ggplot2::ggplot(fake_data_set, ggplot2::aes(x=`Fake measurement`)) +
+ggplot2::geom_histogram(bins=5, colour="black", fill="lightgrey")
+```
+
+**Explanation for the 6 statements**
+
+1. Statement 1: it creates a vector of 5 numbers called "possible_outcomes". These numbers are the possible outcomes in the later observation of fake_data_points.
+
+2. Statement 2: it creates a vector called outcome_probabilites which contains the probability of observing each element in the possible_outcomes. Specifically, the probability of getting number "0" is 0.1, number "1" is 0.5 and so on. My reasoning to this guess is as follows:
+  * the name of this variable is called "probability" which I believe indicates to its real meaning
+  * outcome_probabilities contains the same number of elements as that in possible_outcomes
+  * the sum of the all the decimals in outcome_probabilities equals to 1 and each of them differs which indicates that the chance to observe say number "0" and number "1" is not the same: 0.5 > 0.1 means that number "1" is 5 times more likely to be seen than "0".
+  * in fake_data_points, possible_outcomes shown in the first place and outcome_probabilities is assigned to the parameter "prob", which I would guess that it links these two variables by assigning one probability to one outcome correspondingly.
+  
+3. Statement 3: it creates a variable called n_data_points and assigns a value 400 to it. This variable determines the total number of observations in the following process.
+  * I would say guess that it's like throwing a unbalanced dice with numbers 0-5 on it for 400 times
+  * the 400 data_points are actually the 400 observations
+  
+4. Statement 4: it sets a starting point for the generation of a sequence of random numbers to make sure that following sample command returns the same results if given the same parameters (i.e: data length, size, replace and prob). More specifically:
+  * set.seed() gets any integers as parameter, by calling the same integer each time, we can get the same result; but when given NULL (as the case after), generators are re-initialized and we can no longer get the same result. [Information read from here](https://www.rdocumentation.org/packages/simEd/versions/1.0.3/topics/set.seed)
+  * test with letters: [Youtube tutorial](https://www.youtube.com/watch?v=UF1tHhIeQ6U)
+  
+```{r}
+set.seed(123)
+x <- sample(LETTERS, 5)
+set.seed(123)
+y <- sample(LETTERS, 5)
+set.seed(NULL)
+z <- sample(LETTERS, 5)
+```
+  * In the part Environment-Values we can observe the values of these 3 variables:
+  
+```
+x chr [1:5] "G" "J" "N" "U" "E"
+y chr [1:5] "G" "J" "N" "U" "E"
+z chr [1:5] "X" "Z" "P" "O" "B"
+```
+
+  * the objectif of this command is to make sure that each time running this chunk of code, fake_data_points will obtain the same data
+
+5. Statement 5: it creates a sequence of 400 random numbers (from 0 to 5) and store them in a variable called fake_data_points. For each one of the parameter:
+  * according to the doc, it's a function that takes 4 parameters (x, size, replace, prob).
+  * I'll make a scenario with 6 kinds of balls with each one a different number on it (0-5), and do the game of pick out the ball with eyes closed.
+  * x here is possible_outcomes, which indicates all possible outcomes of the ball: from 0 to 5
+  * size here is n_data_points (which equals to 400), it gives the total number of balls. So here we have 400 balls all in a black box.
+  * replace=T means TRUE. According to the doc, when replace is false, the probabilities are applied *sequentially*, that is the probability of choosing the next item is proportional to the weights amongest the remaining items. I did a small test with `sample(c(0,1),2, replace=FALSE)`, when set replace to FALSE, never shows two "0"s or two "1"s at the same time, while replace=T does. So my guess would be that this parameter determines whether we **put back** the balls each time after we picked out them. If it's true, we put the ball back into the box so that next time I still have the same probability to pick any number of them; if false, I don't put the ball back, so that the chances change each time I play the game - so as "sequentially" indicate. Another text also confirms my guess when I tried this command `a <- sample(c(0,1,2), 5, replace=FALSE)`, it shows the error in saying that *cannot take a sample larger than the population when 'replace = FALSE'*, because after 3 times, I don't have any number left so couldn't continue.
+  * prob here is outcome_probabilities, which indicates the probability of picking out each number of balls. In our case, with total 400 balls, we will have 40 ball number "0", 200 ball "1", 80 ball "2", 40 ball "3", 20 ball "4" and 20 ball "5".
+  * the game starts with these 400 balls, and we will do the picking 400 times. Each time the number of the ball is recorded in the sequence fake_data_points. So finally we got 400 numbers variating from 0 to 5 (not eaqually distributed, meaning that more "1"s than "4"s or "5"s for instance)
+
+6. Statement 6: creates a data frame using tibble (a modern way of creating a data frame). The data frame's only colume name is "fake measurement" and contains 400 rows with each one the result of fake_data_points. How I came to get this:
+  * data_frame seems alike data.frame, the later is a classic way to create a data frame: `data.frame()`, however it differs slightly from the old one when seeing "_" instead of ".". The first guess would be that `data_frame(Fake measurement=fake_data_points)` does approximatly the same thing as data.frame, i.e, create a data frame with fake_data_points.
+  * the arguments inside the data_frame could be explained by the `data.frame(..., row.names = NULL)`, in which the row.names could be "a character string specifying a colune to be used as row names". When trying print fake_data_set in the console, it shows unexpectedly the colume name as "fake measurement"
+  * after consolidating the use of [tibble](https://blog.rstudio.com/2016/03/24/tibble-1-0-0/), I read that data_frame(), which is a tibble from individual vectors, does much less than data.frame(); however in terms of printing, tibble seems to be more sophisticated. Also in terms of subsetting, tibble is more strict.
+  * with :: in between tibble and data_frame, I am not quite sure. My guess would be that :: is a way to use the data_frame methode in tibble package; and with <- means to assign this data frame to a variable called "fake_data_set"
+  
+
+## Exercise 3
+### sub-exercise 3-a
+```{r}
+print(sum_column(iris, "Sepal.Length"))
+print(sum_column(iris, "Species"))
+print(sum_column(warpbreaks, "breaks"))
+```
+
+### sub-exercise 3-b
+```{r}
+print(my_sum(iris$Sepal.Length))
+print(my_sum(iris$Species))
+print(my_sum(warpbreaks$breaks))
+```
+
+### sub-exercise 3-c
+```{r}
+print(sum_divided_by(iris$Sepal.Length, 12))
+print(sum_divided_by(iris$Species, 22))
+print(sum_divided_by(iris$Sepal.Length, "Not numeric"))
+print(sum_divided_by(warpbreaks$breaks, -12))
+```
+
+
+### sub-exercise 3-d
+```{r}
+print(my_mean(iris$Sepal.Length))
+print(my_mean(iris$Species))
+print(my_mean(warpbreaks$breaks))
+```
+
+
+## Exercise 4
+### sub-exercise 4-a
+```{r}
+print(grouped_violin_plot(iris, "Sepal.Length", "Species"))
+```
+
+### sub-exercise 4-b
+```{r}
+p <- grouped_violin_plot(iris, "Sepal.Length", "Species")
+# YOUR CODE HERE: Change the colour scheme for the interior of the three violin plots
+# to anything else at all.
+p <- p + ggplot2::scale_fill_brewer(palette = "Dark2")
+# YOUR CODE HERE: Add a main title that says "Iris data".
+p <- p + ggplot2::ggtitle("Iris data")
+print(p)
+```
+
+
+## Exercise 5
+### sub-exercise 5-a
+```{r}
+difference_in_medians(iris, "Sepal.Width", "Species", "versicolor", "virginica")
+difference_in_medians(iris, "Sepal.Width", "Species", "virginica", "virginica")
+```
+
+
+### sub-exercise 5-b
+```{r}
+iris$Sepal.Width[1:10]
+if(!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(1)
+randomize(iris, "Sepal.Width")$Sepal.Width[1:10]
+randomize(iris, "Species")$Species[1:10]
+randomize(iris, "Species")$Sepal.Width[1:10]
+```
+
+
+### sub-exercise 5-c
+```{r}
+source("functions.R")
+if(!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(1)
+ptest_1 <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
+"virginica", difference_in_medians, n_samples=10)
+ptest_2 <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
+"virginica", difference_in_medians, n_samples=10)
+ptest_3 <- permutation_twogroups(randomize(iris, "Sepal.Width"), "Sepal.Width",
+"Species", "versicolor", "virginica",
+difference_in_medians, n_samples=10)
+set.seed(previous_seed)
+print(ptest_1)
+print(ptest_2)
+print(ptest_3)
+print(ptest_3$observed)
+print(ptest_3[["observed"]])
+```
+
+### sub-exercise 5-d
+Yes it matters if I permuted grouping_var instead of var. The data frame will reorganized based on the randomed value of grouping_var and not var, so the results will change.
+In fact, when changing the line `permutation <- randomize(d, var)` into `permutation <- randomize(d, grouping_var)`, the result for the same test changed into as follows:
+```
+$observed
+[1] -0.2
+
+$permuted
+ [1] 0.00 0.10 0.00 0.00 0.00 0.05 0.00 0.00 0.00 0.05
+
+$observed
+[1] -0.2
+
+$permuted
+ [1]  0.10  0.00  0.00  0.00  0.00  0.00 -0.05 -0.10  0.05  0.10
+
+$observed
+[1] 0
+
+$permuted
+ [1]  0.10  0.00  0.00 -0.10 -0.10  0.10  0.00  0.00  0.10  0.05
+
+[1] 0
+[1] 0
+```
+
+
+### sub-exercise 5-e
+```{r cache=T}
+if(!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(1)
+ptest <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
+"virginica", difference_in_medians)
+set.seed(previous_seed)
+```
+
+```{r}
+ptest_d <- tibble::as_tibble(ptest["permuted"])
+# print(structure(ptest_d))
+# YOUR CODE HERE: plot a histogram with a vertical line at the observed value
+# Get my observed value from the ptest
+observed_value <- ptest["observed"]
+
+library(ggplot2)
+ggplot(ptest_d, aes(x=permuted)) + geom_histogram(color="white", fill="blue") + labs(title = "Histogram of observed value and permuted values", x = "permuted values", y = "count") + geom_vline(aes(xintercept=unlist(observed_value), color = "observed_value"), show.legend = T, size = 1)
+
+```
+
+Observation: while the observed value is biased from 0, the permutation values are mostly centralized around 0 and obey a normal distribution. In the permutation values, there is very less values seated at -0.2 (where the observed value is).
+
+
+
+
+
