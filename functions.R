@@ -144,9 +144,9 @@ difference_in_medians <- function(d, var, grouping_var, group1, group2) {
   d_1 <- dplyr::filter(d, get(grouping_var) == group1)
   d_2 <- dplyr::filter(d, get(grouping_var) == group2)
   # YOUR CODE HERE: assign the difference in the medians to the variable 'result'
-  # take the colume "var" from the data frame d_1 and d_2, UNLIST them and convert to a single numeric vector
+  # take the colume "var" from the data frame d_1 and d_2,
   # then calculate the median of the 2 groups
-  result <- median(as.numeric(unlist(d_1[var]))) - median(as.numeric(unlist(d_2[var])))
+  result <- median(d_1[[var]]) - median(d_2[[var]])
   return(result)
 }
 
@@ -209,9 +209,4 @@ result <- list(observed=observed_statistic,
                permuted=permutation_statistics)
 return(result)
 }
-
-ptest_1 <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
-                                 "virginica", difference_in_medians, n_samples=10)
-
-
 
