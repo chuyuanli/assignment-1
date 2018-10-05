@@ -175,9 +175,10 @@ print(ptest_3$observed)
 print(ptest_3[["observed"]])
 ```
 
+
 ### sub-exercise 5-d
-Yes it matters if I permuted grouping_var instead of var. The data frame will reorganized based on the randomed value of grouping_var and not var, so the results will change.
-In fact, when changing the line `permutation <- randomize(d, var)` into `permutation <- randomize(d, grouping_var)`, the result for the same test changed into as follows:
+No it doesn't hurt for my permutation test if I permuted grouping_var instead of var. Although the data frame will reorganized based on the randomed value of grouping_var and not var, the results won't change much (so to speak, permuted values still mostly around 0).
+When changing the line `permutation <- randomize(d, var)` into `permutation <- randomize(d, grouping_var)`, the result for the same test changed into as follows:
 ```
 $observed
 [1] -0.2
@@ -214,7 +215,6 @@ set.seed(previous_seed)
 
 ```{r}
 ptest_d <- tibble::as_tibble(ptest["permuted"])
-# print(structure(ptest_d))
 # YOUR CODE HERE: plot a histogram with a vertical line at the observed value
 # Get my observed value from the ptest
 observed_value <- ptest["observed"]
@@ -224,7 +224,8 @@ ggplot(ptest_d, aes(x=permuted)) + geom_histogram(color="white", fill="blue") + 
 
 ```
 
-Observation: while the observed value is biased from 0, the permutation values are mostly centralized around 0 and obey a normal distribution. In the permutation values, there is very less values seated at -0.2 (where the observed value is).
+**Observation**: 
+while the observed value is biased from 0, the permutation values are mostly centralized around 0 and obey a normal distribution. In the permutation values, there is very less values seated at -0.2 (where the observed value is).
 
 
 
